@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cart • Minimal Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+  <style> body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; } </style>
+</head>
+<body class="bg-[var(--coffee-bg)] text-neutral-100 min-h-screen flex flex-col">
+  <nav class="sticky top-0 z-40 backdrop-blur border-b border-[var(--coffee-muted)] bg-[var(--coffee-card)]/80">
+    <div class="container mx-auto container-narrow px-4 py-3 flex items-center justify-between">
+      <a href="./index.html" class="font-extrabold tracking-tight">Aurelia</a>
+      <div class="hidden sm:flex items-center gap-6 text-sm">
+        <a href="./index.html" class="hover:text-[var(--coffee-accent)]">Home</a>
+        <a href="./products.html" class="hover:text-[var(--coffee-accent)]">Products</a>
+        <a href="./cart.html" class="hover:text-[var(--coffee-accent)] text-[var(--coffee-accent)]">Cart</a>
+        <a href="./index.html#contact" class="hover:text-[var(--coffee-accent)]">Contact</a>
+      </div>
+      <a href="./cart.html" class="relative inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--coffee-muted)] border border-[var(--coffee-muted)] hover:bg-[var(--coffee-card)]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[var(--coffee-accent)]" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h2l.4 2M7 13h10l3-7H6.4M7 13L5.4 5M7 13l-2 9h14l-2-9M10 21a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm8 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>
+        <span class="text-sm font-semibold">Cart</span>
+        <span id="navCount" class="absolute -top-1 -right-1 bg-[var(--coffee-accent)] text-black text-xs font-bold px-1.5 py-0.5 rounded-full">0</span>
+      </a>
+    </div>
+  </nav>
+
+  <main class="container mx-auto container-narrow px-4 py-8 flex-1">
+    <h1 class="text-2xl font-bold mb-4">Your Cart</h1>
+    <div id="cartContainer" class="grid md:grid-cols-3 gap-6">
+      <div class="md:col-span-2 space-y-3" id="cartItems"></div>
+      <div class="md:col-span-1">
+        <div class="rounded-xl border border-[var(--coffee-muted)] bg-[var(--coffee-card)] p-4">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm text-neutral-300">Subtotal</span>
+            <span id="subtotal" class="text-lg font-bold text-[var(--coffee-accent)]">$0.00</span>
+          </div>
+          <button id="checkout" class="w-full px-4 py-2 rounded-lg bg-[var(--coffee-accent)] text-black font-semibold shadow-gold hover:brightness-110">Checkout</button>
+          <p class="mt-2 text-xs text-neutral-400">Shipping and taxes calculated at checkout.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-[var(--coffee-muted)] py-8 text-center text-sm text-neutral-300">© <span id="year"></span> Minimal Shop</footer>
+
+  <script src="./products-data.js"></script>
+  <script src="./store.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const itemsEl = document.getElementById('cartItems');
+    const subtotalEl = document.getElementById('subtotal');
+
+    function renderCart(){
+      const cart = getCart();
+      itemsEl.innerHTML = '';
+      if(cart.length===0){
+        itemsEl.innerHTML = '<div class="text-sm text-neutral-300">Your cart is empty.</div>';
+      }
+      let subtotal = 0;
+      cart.forEach(item=>{
+        const product = PRODUCTS.find(p=>p.id===item.id);
+        const row = document.createElement('div');
+        row.className = 'p-3 rounded-lg border border-[var(--coffee-muted)] bg-[var(--coffee-card)]';
+        const line = product.price * item.qty;
+        subtotal += line;
+        row.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="w-16 h-16 rounded-md overflow-hidden border border-[var(--coffee-muted)] flex-shrink-0">
+              <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover"/>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="text-sm font-semibold">${product.name}</div>
+                  <div class="text-xs text-neutral-400">$${product.price.toFixed(2)}</div>
+                </div>
+                <button class="p-1 rounded hover:bg-black/30" data-remove="${product.id}" aria-label="Remove item">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M6 7h12M9 7V5h6v2m-7 3v9m8-9v9M5 7l1 14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-14"/></svg>
+                </button>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <div class="inline-flex items-center border border-[var(--coffee-muted)] rounded-lg overflow-hidden bg-[var(--coffee-card)]">
+                  <button class="px-3 py-1.5 hover:bg-black/30" data-dec="${product.id}">-</button>
+                  <div class="px-3 py-1.5 text-sm">${item.qty}</div>
+                  <button class="px-3 py-1.5 hover:bg-black/30" data-inc="${product.id}">+</button>
+                </div>
+                <div class="font-semibold text-[var(--coffee-accent)]">$${line.toFixed(2)}</div>
+              </div>
+            </div>
+          </div>`;
+        itemsEl.appendChild(row);
+      });
+      subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+
+      itemsEl.querySelectorAll('[data-remove]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{ removeFromCart(btn.getAttribute('data-remove')); renderCart(); updateNavCount(); });
+      });
+      itemsEl.querySelectorAll('[data-dec]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{ changeQty(btn.getAttribute('data-dec'), -1); renderCart(); updateNavCount(); });
+      });
+      itemsEl.querySelectorAll('[data-inc]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{ changeQty(btn.getAttribute('data-inc'), 1); renderCart(); updateNavCount(); });
+      });
+    }
+
+    document.getElementById('checkout').addEventListener('click', ()=>{
+      const cart = getCart();
+      if(cart.length===0) return alert('Your cart is empty.');
+      alert('Checkout initialized.');
+    });
+
+    renderCart();
+    updateNavCount();
+  </script>
+</body>
+</html>

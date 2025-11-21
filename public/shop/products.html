@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Products • Minimal Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+  <style> body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; } </style>
+</head>
+<body class="bg-[var(--coffee-bg)] text-neutral-100 min-h-screen flex flex-col">
+  <nav class="sticky top-0 z-40 backdrop-blur border-b border-[var(--coffee-muted)] bg-[var(--coffee-card)]/80">
+    <div class="container mx-auto container-narrow px-4 py-3 flex items-center justify-between">
+      <a href="./index.html" class="font-extrabold tracking-tight">Aurelia</a>
+      <div class="hidden sm:flex items-center gap-6 text-sm">
+        <a href="./index.html" class="hover:text-[var(--coffee-accent)]">Home</a>
+        <a href="./products.html" class="hover:text-[var(--coffee-accent)] text-[var(--coffee-accent)]">Products</a>
+        <a href="./cart.html" class="hover:text-[var(--coffee-accent)]">Cart</a>
+        <a href="./index.html#contact" class="hover:text-[var(--coffee-accent)]">Contact</a>
+      </div>
+      <a href="./cart.html" class="relative inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--coffee-muted)] border border-[var(--coffee-muted)] hover:bg-[var(--coffee-card)]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[var(--coffee-accent)]" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h2l.4 2M7 13h10l3-7H6.4M7 13L5.4 5M7 13l-2 9h14l-2-9M10 21a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm8 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>
+        <span class="text-sm font-semibold">Cart</span>
+        <span id="navCount" class="absolute -top-1 -right-1 bg-[var(--coffee-accent)] text-black text-xs font-bold px-1.5 py-0.5 rounded-full">0</span>
+      </a>
+    </div>
+  </nav>
+
+  <main class="container mx-auto container-narrow px-4 py-8 flex-1">
+    <div class="flex items-end justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold">All Products</h1>
+        <p class="text-sm text-neutral-300">Browse our catalog</p>
+      </div>
+      <div class="flex items-center gap-2 text-sm">
+        <button id="filterAll" class="px-3 py-1.5 rounded-lg bg-[var(--coffee-accent)] text-black font-semibold">All</button>
+        <button id="filterBeans" class="px-3 py-1.5 rounded-lg bg-[var(--coffee-card)] border border-[var(--coffee-muted)] hover:bg-[var(--coffee-muted)]">Beans</button>
+        <button id="filterGear" class="px-3 py-1.5 rounded-lg bg-[var(--coffee-card)] border border-[var(--coffee-muted)] hover:bg-[var(--coffee-muted)]">Gear</button>
+      </div>
+    </div>
+    <div id="grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"></div>
+  </main>
+
+  <footer class="border-t border-[var(--coffee-muted)] py-8 text-center text-sm text-neutral-300">© <span id="year"></span> Minimal Shop</footer>
+
+  <script src="./products-data.js"></script>
+  <script src="./store.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    let active = 'all';
+
+    const grid = document.getElementById('grid');
+    const btnAll = document.getElementById('filterAll');
+    const btnBeans = document.getElementById('filterBeans');
+    const btnGear = document.getElementById('filterGear');
+
+    function render(){
+      grid.innerHTML='';
+      const items = PRODUCTS.filter(p => active==='all' ? true : p.category===active);
+      items.forEach(p=>{
+        const card = document.createElement('div');
+        card.className='group rounded-xl overflow-hidden border border-[var(--coffee-muted)] bg-[var(--coffee-card)] hover:-translate-y-0.5 transition';
+        card.innerHTML=`
+          <a href="./product.html?id=${p.id}" class="block"><img src="${p.image}" alt="${p.name}" class="w-full h-40 sm:h-48 object-cover"/></a>
+          <div class="p-3 sm:p-4">
+            <a href="./product.html?id=${p.id}"><h4 class="font-semibold text-sm sm:text-base hover:text-[var(--coffee-accent)]">${p.name}</h4></a>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-[var(--coffee-accent)] font-semibold">$${p.price.toFixed(2)}</span>
+              <button data-add="${p.id}" class="px-3 py-1.5 text-sm rounded-lg bg-[var(--coffee-muted)] hover:bg-black/30 border border-[var(--coffee-muted)]">Add</button>
+            </div>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+
+    render();
+
+    [btnAll, btnBeans, btnGear].forEach(btn=>btn.addEventListener('click', ()=>{
+      active = btn===btnBeans ? 'beans' : btn===btnGear ? 'gear' : 'all';
+      btnAll.className='px-3 py-1.5 rounded-lg bg-[var(--coffee-card)] border border-[var(--coffee-muted)] hover:bg-[var(--coffee-muted)]';
+      btnBeans.className=btnAll.className; btnGear.className=btnAll.className;
+      const activeBtn = active==='beans'?btnBeans:active==='gear'?btnGear:btnAll;
+      activeBtn.className='px-3 py-1.5 rounded-lg bg-[var(--coffee-accent)] text-black font-semibold';
+      render();
+    }));
+
+    grid.addEventListener('click', (e)=>{
+      const btn = e.target.closest('[data-add]');
+      if(!btn) return;
+      const p = PRODUCTS.find(p=>p.id===btn.getAttribute('data-add'));
+      addToCart(p);
+      updateNavCount();
+    });
+
+    updateNavCount();
+  </script>
+</body>
+</html>

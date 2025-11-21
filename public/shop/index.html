@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Minimal Shop</title>
+  <meta name="description" content="Simple and responsive e-commerce demo" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  </style>
+</head>
+<body class="bg-[var(--coffee-bg)] text-neutral-100 min-h-screen flex flex-col">
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-40 backdrop-blur border-b border-[var(--coffee-muted)] bg-[var(--coffee-card)]/80">
+    <div class="container mx-auto container-narrow px-4 py-3 flex items-center justify-between">
+      <a href="./index.html" class="flex items-center gap-2">
+        <img src="/public/flame-icon.svg" alt="logo" class="w-6 h-6">
+        <span class="font-extrabold tracking-tight">Aurelia</span>
+      </a>
+      <div class="hidden sm:flex items-center gap-6 text-sm">
+        <a href="./index.html" class="hover:text-[var(--coffee-accent)]">Home</a>
+        <a href="./products.html" class="hover:text-[var(--coffee-accent)]">Products</a>
+        <a href="./cart.html" class="hover:text-[var(--coffee-accent)]">Cart</a>
+        <a href="#contact" class="hover:text-[var(--coffee-accent)]">Contact</a>
+      </div>
+      <a href="./cart.html" class="relative inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--coffee-muted)] border border-[var(--coffee-muted)] hover:bg-[var(--coffee-card)]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[var(--coffee-accent)]" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h2l.4 2M7 13h10l3-7H6.4M7 13L5.4 5M7 13l-2 9h14l-2-9M10 21a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm8 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>
+        <span class="text-sm font-semibold">Cart</span>
+        <span id="navCount" class="absolute -top-1 -right-1 bg-[var(--coffee-accent)] text-black text-xs font-bold px-1.5 py-0.5 rounded-full">0</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="container mx-auto container-narrow px-4 mt-8">
+    <div class="rounded-2xl overflow-hidden border border-[var(--coffee-muted)] bg-gradient-to-br from-[#2e2623] to-[#151211]">
+      <div class="px-6 md:px-10 py-12 md:py-16 grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-extrabold leading-tight">Your Minimal, Modern Storefront</h1>
+          <p class="mt-3 text-neutral-300 max-w-prose">A clean e-commerce starter with a tasteful dark theme. Explore featured picks and add to your cart in seconds.</p>
+          <div class="mt-6 flex gap-3">
+            <a href="./products.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--coffee-accent)] text-black font-semibold shadow-gold hover:brightness-110">Shop Products</a>
+            <a href="#featured" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--coffee-card)] border border-[var(--coffee-muted)] hover:bg-[var(--coffee-muted)]">Featured</a>
+          </div>
+        </div>
+        <div>
+          <img src="https://placehold.co/900x600/3A2F2B/EBEBEB?text=Hero+Banner" alt="hero" class="w-full h-60 md:h-72 object-cover rounded-xl border border-[var(--coffee-muted)]">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Featured -->
+  <main id="featured" class="container mx-auto container-narrow px-4 py-10 flex-1">
+    <div class="flex items-end justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold">Featured Products</h2>
+        <p class="text-sm text-neutral-300">Hand-picked items to get you started</p>
+      </div>
+      <a href="./products.html" class="text-sm text-[var(--coffee-accent)] hover:underline link">Browse all</a>
+    </div>
+    <div id="featuredGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"></div>
+  </main>
+
+  <!-- Contact -->
+  <section id="contact" class="container mx-auto container-narrow px-4 pb-12">
+    <div class="rounded-2xl border border-[var(--coffee-muted)] bg-[var(--coffee-card)] p-6 md:p-8">
+      <h3 class="text-xl font-bold">Contact</h3>
+      <p class="text-sm text-neutral-300 mt-2">Have questions? Email hello@example.com</p>
+    </div>
+  </section>
+
+  <footer class="border-t border-[var(--coffee-muted)] py-8 text-center text-sm text-neutral-300">© <span id="year"></span> Minimal Shop</footer>
+
+  <script src="./products-data.js"></script>
+  <script src="./store.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const featuredIds = PRODUCTS.slice(0, 3).map(p => p.id);
+    const featuredGrid = document.getElementById('featuredGrid');
+
+    function renderCard(p){
+      const div = document.createElement('div');
+      div.className = 'group rounded-xl overflow-hidden border border-[var(--coffee-muted)] bg-[var(--coffee-card)] hover:-translate-y-0.5 transition';
+      div.innerHTML = `
+        <a href="./product.html?id=${p.id}" class="block">
+          <img src="${p.image}" alt="${p.name}" class="w-full h-40 sm:h-48 object-cover" />
+        </a>
+        <div class="p-3 sm:p-4">
+          <a href="./product.html?id=${p.id}"><h4 class="font-semibold text-sm sm:text-base hover:text-[var(--coffee-accent)]">${p.name}</h4></a>
+          <div class="flex items-center justify-between mt-1">
+            <span class="text-[var(--coffee-accent)] font-semibold">$${p.price.toFixed(2)}</span>
+            <button data-add="${p.id}" class="px-3 py-1.5 text-sm rounded-lg bg-[var(--coffee-muted)] hover:bg-black/30 border border-[var(--coffee-muted)]">Add</button>
+          </div>
+        </div>`;
+      featuredGrid.appendChild(div);
+    }
+
+    featuredIds.forEach(id => renderCard(PRODUCTS.find(p=>p.id===id)));
+
+    featuredGrid.addEventListener('click', (e)=>{
+      const btn = e.target.closest('[data-add]');
+      if(!btn) return;
+      const p = PRODUCTS.find(p=>p.id === btn.getAttribute('data-add'));
+      addToCart(p);
+      updateNavCount();
+    });
+
+    updateNavCount();
+  </script>
+</body>
+</html>
